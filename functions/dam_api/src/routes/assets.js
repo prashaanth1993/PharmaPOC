@@ -4,13 +4,15 @@ const Busboy = require('busboy');
 const { query, insertRow, escapeZcql } = require('../db');
 const { suggestClassification } = require('../taxonomy');
 
+const INTERNAL_ROLES = ['Brand Manager', 'Reviewer', 'Admin'];
+
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
     const { role, search, function: func, market, status } = req.query;
     const conditions = [];
-    if (role === 'Agency Viewer' || !role) {
+    if (!INTERNAL_ROLES.includes(role)) {
       conditions.push("STATUS = 'Published'");
     } else if (status) {
       conditions.push(`STATUS = '${escapeZcql(status)}'`);

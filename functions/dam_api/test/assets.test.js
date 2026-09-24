@@ -46,6 +46,12 @@ describe('GET /assets', () => {
     await request(buildApp()).get('/assets').query({ role: 'Admin', search: "O'Brien" });
     expect(query.mock.calls[0][1]).toContain("NAME LIKE '%O''Brien%'");
   });
+
+  test('an unrecognized (non-allowlisted) role is also scoped to Published only, not just a missing one', async () => {
+    query.mockResolvedValue([]);
+    await request(buildApp()).get('/assets').query({ role: 'SomeUnrecognizedRole' });
+    expect(query.mock.calls[0][1]).toContain("STATUS = 'Published'");
+  });
 });
 
 describe('GET /assets/:id/suggestions', () => {
