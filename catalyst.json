@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "catalystVersion": "1.27.0",
+  "projectId": "21268000035138541",
+  "organizationId": "60047188586",
+  "environmentId": "60047188586",
+  "projectName": "PharmaPOC",
+  "environmentName": "Development",
+  "functions": [],
+  "slate": {}
+}
