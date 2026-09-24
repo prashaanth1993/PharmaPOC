@@ -20,6 +20,7 @@
 - All Advanced I/O routes use `catalyst.initialize(req, { scope: 'admin' })` (no logged-in app user exists in this POC).
 - Do not set CORS headers for non-localhost origins in function code — add the Slate domain via Console → Authentication → Authorized Domains instead (Task 16), per the CORS "duplicate header" footgun.
 - Taxonomy vocabulary (Function/Process/Asset Type/Status values) must match §4 of the spec exactly — these are the terms borrowed from Sun Pharma's own DMS Taxonomy Blueprint and are a deliberate selling point.
+- The Sun Pharma logo (`assets/branding/sun-pharma-logo.png` in the project root, user-provided) must be present in the app header from Task 16 onward — copied into `client/public/sun-pharma-logo.png` in Task 11 Step 11, rendered in `App.jsx`'s header in Task 16 Step 2.
 
 ## Review Focus
 
@@ -1450,7 +1451,7 @@ export async function logUsage(body) {
 Run: `cd client && npx vitest run test/api.test.js`
 Expected: PASS (3 tests)
 
-- [ ] **Step 11: SPA routing files**
+- [ ] **Step 11: SPA routing files + brand logo**
 
 `client/public/_redirects`:
 ```
@@ -1461,6 +1462,18 @@ Expected: PASS (3 tests)
 ```json
 { "name": "pharmapoc-dam", "version": "0.0.1", "homepage": "/", "login_redirect": "/" }
 ```
+
+Copy the Sun Pharma logo (provided by the user, stored at `assets/branding/sun-pharma-logo.png`
+in the project root) into the Vite public folder so it is served at `/sun-pharma-logo.png` and
+survives the build:
+
+```bash
+cp /Users/prasha-3336/Catalyst-Proj/PharmaPOC/assets/branding/sun-pharma-logo.png \
+   /Users/prasha-3336/Catalyst-Proj/PharmaPOC/client/public/sun-pharma-logo.png
+```
+
+Task 16's `App.jsx` header renders this logo — it must be present at `client/public/sun-pharma-logo.png`
+before Task 16 runs.
 
 - [ ] **Step 12: Link the Slate app to the existing `client/` build output (non-interactive)**
 
@@ -2107,7 +2120,11 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <header><h1>Sun Pharma DAM Demo</h1><RoleSwitcher /></header>
+      <header className="app-header">
+        <img src="/sun-pharma-logo.png" alt="Sun Pharma" className="brand-logo" />
+        <h1>Sun Pharma DAM Demo</h1>
+        <RoleSwitcher />
+      </header>
       {role === 'Brand Manager' && (
         <>
           <nav>{Object.keys(BRAND_TABS).map((t) => <button key={t} onClick={() => setTab(t)}>{t}</button>)}</nav>
