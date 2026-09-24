@@ -53,23 +53,47 @@ const SAMPLE_ASSETS = [
   { name: 'DiabetCare Packaging Artwork', assetType: 'Image', func: 'Marketing', process: 'Product Launch', brand: 'DiabetCare', market: 'Indonesia', status: 'Draft', color: '#16a34a' },
 ];
 
+const PERSONA_SEEDS = [
+  { NAME: 'Priya Sharma', ROLE: 'Brand Manager', MARKET: 'Nigeria' },
+  { NAME: 'Dr. Anil Rao', ROLE: 'Reviewer', MARKET: 'Global' },
+  { NAME: 'Sun Pharma Admin', ROLE: 'Admin', MARKET: 'Global' },
+  { NAME: 'Field Agency Partner', ROLE: 'Agency Viewer', MARKET: 'Philippines' },
+];
+
+const TAG_SEEDS = [
+  { TAG_NAME: 'Launch', TAG_CATEGORY: 'Campaign' },
+  { TAG_NAME: 'Field', TAG_CATEGORY: 'Content Type' },
+  { TAG_NAME: 'Digital', TAG_CATEGORY: 'Content Type' },
+  { TAG_NAME: 'Cardiovascular', TAG_CATEGORY: 'Therapeutic Area' },
+];
+
 router.post('/seed', async (req, res) => {
   try {
-    await insertRows(req.catalystApp, 'Personas', [
-      { NAME: 'Priya Sharma', ROLE: 'Brand Manager', MARKET: 'Nigeria' },
-      { NAME: 'Dr. Anil Rao', ROLE: 'Reviewer', MARKET: 'Global' },
-      { NAME: 'Sun Pharma Admin', ROLE: 'Admin', MARKET: 'Global' },
-      { NAME: 'Field Agency Partner', ROLE: 'Agency Viewer', MARKET: 'Philippines' },
-    ]);
-    await insertRows(req.catalystApp, 'Tags', [
-      { TAG_NAME: 'Launch', TAG_CATEGORY: 'Campaign' },
-      { TAG_NAME: 'Field', TAG_CATEGORY: 'Content Type' },
-      { TAG_NAME: 'Digital', TAG_CATEGORY: 'Content Type' },
-      { TAG_NAME: 'Cardiovascular', TAG_CATEGORY: 'Therapeutic Area' },
-    ]);
+    // Personas: only insert the ones that don't already exist (by NAME), so
+    // re-running /admin/seed never hits a uniqueness error and never duplicates rows.
+    const existingPersonas = await query(req.catalystApp, 'SELECT NAME FROM Personas', 'Personas');
+    const existingPersonaNames = new Set(existingPersonas.map((p) => p.NAME));
+    const newPersonas = PERSONA_SEEDS.filter((p) => !existingPersonaNames.has(p.NAME));
+    if (newPersonas.length) {
+      await insertRows(req.catalystApp, 'Personas', newPersonas);
+    }
+
+    // Tags: same skip-if-exists pattern, keyed on TAG_NAME.
+    const existingTags = await query(req.catalystApp, 'SELECT TAG_NAME FROM Tags', 'Tags');
+    const existingTagNames = new Set(existingTags.map((t) => t.TAG_NAME));
+    const newTags = TAG_SEEDS.filter((t) => !existingTagNames.has(t.TAG_NAME));
+    if (newTags.length) {
+      await insertRows(req.catalystApp, 'Tags', newTags);
+    }
+
+    // Sample Assets: same skip-if-exists pattern, keyed on NAME. Skip the Stratus
+    // upload entirely for assets that already exist, so re-seeding doesn't re-upload.
+    const existingAssets = await query(req.catalystApp, 'SELECT NAME FROM Assets', 'Assets');
+    const existingAssetNames = new Set(existingAssets.map((a) => a.NAME));
     const bucket = req.catalystApp.stratus().bucket(process.env.STRATUS_BUCKET);
     const inserted = [];
     for (const sample of SAMPLE_ASSETS) {
+      if (existingAssetNames.has(sample.name)) continue;
       const key = `seed/${sample.name.replace(/\s+/g, '-')}.svg`;
       await bucket.putObject(key, placeholderSvg(sample.name, sample.color), { contentType: 'image/svg+xml', overwrite: true });
       const fileUrl = `https://${process.env.STRATUS_BUCKET}-development.zohostratus.in/${key}`;
@@ -84,22 +108,28 @@ router.post('/seed', async (req, res) => {
 
     // Seed a handful of UsageLog rows so /admin/analytics has non-zero usageEvents
     // right after seeding, referencing a few of the just-inserted sample assets.
+    // Only do this when this call actually created new assets, so re-running
+    // /admin/seed after everything already exists doesn't pile up duplicate usage events.
     const usageLogSeeds = [];
-    if (inserted[0] && inserted[0].ROWID) {
-      usageLogSeeds.push({ ASSET_ID: inserted[0].ROWID, ACTION: 'View', PERSONA: 'Field Agency Partner', CHANNEL: 'DAM Demo' });
-      usageLogSeeds.push({ ASSET_ID: inserted[0].ROWID, ACTION: 'Download', PERSONA: 'Priya Sharma', CHANNEL: 'DAM Demo' });
-    }
-    if (inserted[1] && inserted[1].ROWID) {
-      usageLogSeeds.push({ ASSET_ID: inserted[1].ROWID, ACTION: 'View', PERSONA: 'Dr. Anil Rao', CHANNEL: 'DAM Demo' });
-    }
-    if (inserted[4] && inserted[4].ROWID) {
-      usageLogSeeds.push({ ASSET_ID: inserted[4].ROWID, ACTION: 'Download', PERSONA: 'Field Agency Partner', CHANNEL: 'DAM Demo' });
+    if (inserted.length > 0) {
+      const target0 = inserted[0];
+      const target1 = inserted[1] || inserted[0];
+      const target2 = inserted[2] || inserted[0];
+      usageLogSeeds.push({ ASSET_ID: target0.ROWID, ACTION: 'View', PERSONA: 'Field Agency Partner', CHANNEL: 'DAM Demo' });
+      usageLogSeeds.push({ ASSET_ID: target0.ROWID, ACTION: 'Download', PERSONA: 'Priya Sharma', CHANNEL: 'DAM Demo' });
+      usageLogSeeds.push({ ASSET_ID: target1.ROWID, ACTION: 'View', PERSONA: 'Dr. Anil Rao', CHANNEL: 'DAM Demo' });
+      usageLogSeeds.push({ ASSET_ID: target2.ROWID, ACTION: 'Download', PERSONA: 'Field Agency Partner', CHANNEL: 'DAM Demo' });
     }
     for (const usageLog of usageLogSeeds) {
       await insertRow(req.catalystApp, 'UsageLog', usageLog);
     }
 
-    res.status(200).json({ personasSeeded: 4, tagsSeeded: 4, assetsSeeded: inserted.length, usageLogsSeeded: usageLogSeeds.length });
+    res.status(200).json({
+      personasSeeded: newPersonas.length,
+      tagsSeeded: newTags.length,
+      assetsSeeded: inserted.length,
+      usageLogsSeeded: usageLogSeeds.length,
+    });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

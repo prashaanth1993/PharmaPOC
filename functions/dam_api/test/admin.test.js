@@ -51,6 +51,7 @@ describe('GET /admin/tags', () => {
 
 describe('POST /admin/seed', () => {
   test('seeds Personas, Tags and sample Assets', async () => {
+    query.mockResolvedValue([]); // nothing pre-existing for Personas/Tags/Assets lookups
     insertRows.mockResolvedValue([]);
     insertRow.mockResolvedValue({ ROWID: '1' });
     const res = await request(buildApp()).post('/admin/seed');
@@ -61,6 +62,7 @@ describe('POST /admin/seed', () => {
   });
 
   test('also seeds UsageLog rows referencing seeded assets', async () => {
+    query.mockResolvedValue([]); // nothing pre-existing for Personas/Tags/Assets lookups
     insertRows.mockResolvedValue([]);
     insertRow.mockResolvedValue({ ROWID: '1' });
     const res = await request(buildApp()).post('/admin/seed');
@@ -70,5 +72,55 @@ describe('POST /admin/seed', () => {
       ACTION: expect.any(String),
     }));
     expect(res.body.usageLogsSeeded).toBeGreaterThanOrEqual(3);
+  });
+
+  test('running /admin/seed twice does not duplicate rows on the second run', async () => {
+    const app = buildApp();
+
+    // First call: nothing exists yet in Personas/Tags/Assets.
+    query
+      .mockResolvedValueOnce([]) // existing Personas
+      .mockResolvedValueOnce([]) // existing Tags
+      .mockResolvedValueOnce([]); // existing Assets
+    insertRows.mockResolvedValue([]);
+    insertRow.mockResolvedValue({ ROWID: '1' });
+
+    const firstRes = await request(app).post('/admin/seed');
+    expect(firstRes.status).toBe(200);
+    expect(firstRes.body.personasSeeded).toBe(4);
+    expect(firstRes.body.tagsSeeded).toBe(4);
+    expect(firstRes.body.assetsSeeded).toBe(6);
+    expect(firstRes.body.usageLogsSeeded).toBeGreaterThan(0);
+    expect(insertRows).toHaveBeenCalledTimes(2); // Personas + Tags
+    expect(insertRow.mock.calls.filter(([, table]) => table === 'Assets')).toHaveLength(6);
+
+    jest.clearAllMocks();
+
+    // Second call: everything from the seed lists already exists, per the first
+    // call's inserted data being reflected back by the (mocked) live queries.
+    query
+      .mockResolvedValueOnce([
+        { NAME: 'Priya Sharma' }, { NAME: 'Dr. Anil Rao' }, { NAME: 'Sun Pharma Admin' }, { NAME: 'Field Agency Partner' },
+      ]) // existing Personas
+      .mockResolvedValueOnce([
+        { TAG_NAME: 'Launch' }, { TAG_NAME: 'Field' }, { TAG_NAME: 'Digital' }, { TAG_NAME: 'Cardiovascular' },
+      ]) // existing Tags
+      .mockResolvedValueOnce([
+        { NAME: 'Cardiozan Launch Detail Aid' },
+        { NAME: 'Cardiozan Campaign Social Post' },
+        { NAME: 'Onco-Relief Medical Brochure' },
+        { NAME: 'Field Team Onboarding Deck' },
+        { NAME: 'Sun Pharma Corporate Overview Video' },
+        { NAME: 'DiabetCare Packaging Artwork' },
+      ]); // existing Assets
+
+    const secondRes = await request(app).post('/admin/seed');
+    expect(secondRes.status).toBe(200);
+    expect(secondRes.body.personasSeeded).toBe(0);
+    expect(secondRes.body.tagsSeeded).toBe(0);
+    expect(secondRes.body.assetsSeeded).toBe(0);
+    expect(secondRes.body.usageLogsSeeded).toBe(0);
+    expect(insertRows).not.toHaveBeenCalled();
+    expect(insertRow).not.toHaveBeenCalled();
   });
 });
