@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "21268000035138541",
+      "name": "PharmaPOC",
+      "domain": {
+        "id": "50046250043",
+        "name": "pharmapoc-60047188586.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60047188586",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}
