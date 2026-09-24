@@ -1462,12 +1462,17 @@ Expected: PASS (3 tests)
 { "name": "pharmapoc-dam", "version": "0.0.1", "homepage": "/", "login_redirect": "/" }
 ```
 
-- [ ] **Step 12: Link the Slate app (non-interactive)**
+- [ ] **Step 12: Link the Slate app to the existing `client/` build output (non-interactive)**
+
+`slate:create` scaffolds a brand-new template app — it must NOT be used here since
+`client/` is already our own Vite app. Use `slate:link` to point Slate at our build
+output instead:
 
 ```bash
 cd /Users/prasha-3336/Catalyst-Proj/PharmaPOC/client
 npm run build
-catalyst slate:create --name pharmapoc-dam --framework react-vite -ni
+cd /Users/prasha-3336/Catalyst-Proj/PharmaPOC
+catalyst slate:link --source /Users/prasha-3336/Catalyst-Proj/PharmaPOC/client/dist --name pharmapoc-dam --framework react-vite -ni
 ```
 
 - [ ] **Step 13: Commit**
@@ -2159,8 +2164,13 @@ In the Catalyst Console: Authentication → Authorized Domains → add the `*.on
 
 - [ ] **Step 7: Build and deploy**
 
+Vite's default build cleans `dist/`, which deletes the `.catalyst/slate-config.toml`
+that `slate:link` wrote in Task 11 Step 12 — recreate it after every build, before deploying:
+
 ```bash
 cd client && npm run build
+mkdir -p dist/.catalyst
+printf 'framework = "react-vite"\ndeployment_name = "default"\n\n[[redirects]]\nfrom = "/*"\nto = "/index.html"\nstatus = 200\n' > dist/.catalyst/slate-config.toml
 cd .. && catalyst deploy slate pharmapoc-dam -ni
 ```
 
