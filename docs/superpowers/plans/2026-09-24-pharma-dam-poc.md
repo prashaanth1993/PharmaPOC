@@ -209,7 +209,7 @@ catalyst functions:add --name dam_api --type aio --stack node20 -ni
   "dependencies": {
     "express": "^4.19.2",
     "busboy": "^1.6.0",
-    "zcatalyst-sdk-node": "^2.1.0"
+    "zcatalyst-sdk-node": "^3.0.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",
@@ -221,6 +221,14 @@ catalyst functions:add --name dam_api --type aio --stack node20 -ni
 Run: `cd functions/dam_api && npm install`
 
 - [ ] **Step 4: Write a minimal `index.js` (routers added in Tasks 7-9)**
+
+> Note (added after Task 10): this placeholder's `/health` route is only reachable at
+> `/health` here. Once real traffic hits it via `/server/dam_api/execute/health`, it will
+> 404 — Catalyst's Advanced I/O invocation does not strip the `/execute` path segment.
+> Task 10's version of this file adds a normalizing middleware for this; not needed yet
+> for this minimal placeholder since Task 4's own verification only runs `npx jest
+> --listTests` (no live HTTP call), but don't copy this block verbatim into anything that
+> takes real traffic.
 
 ```javascript
 'use strict';
@@ -1160,6 +1168,22 @@ const usageRouter = require('./src/routes/usage');
 
 const app = express();
 app.use(express.json());
+
+// Catalyst's Advanced I/O invocation URL always includes a literal "/execute"
+// segment (e.g. /server/dam_api/execute/health). Neither `catalyst serve`
+// locally nor the deployed gateway strips this segment for Advanced I/O
+// functions (only Basic I/O gets it stripped) -- it is forwarded verbatim as
+// part of req.url. Normalize it away here so routes can be defined from the
+// app root, while remaining a no-op if the segment is already absent (e.g.
+// supertest hitting the router directly in unit tests). Confirmed against
+// both `catalyst serve` and the live deployed function during Task 10.
+app.use((req, res, next) => {
+  const match = req.url.match(/^\/execute(\/[^?]*)?(\?.*)?$/);
+  if (match) {
+    req.url = (match[1] || '/') + (match[2] || '');
+  }
+  next();
+});
 
 app.use((req, res, next) => {
   const origin = req.headers.origin || '';
