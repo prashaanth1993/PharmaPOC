@@ -610,11 +610,13 @@ const { suggestClassification } = require('../taxonomy');
 
 const router = express.Router();
 
+const INTERNAL_ROLES = ['Brand Manager', 'Reviewer', 'Admin'];
+
 router.get('/', async (req, res) => {
   try {
     const { role, search, function: func, market, status } = req.query;
     const conditions = [];
-    if (role === 'Agency Viewer' || !role) {
+    if (!INTERNAL_ROLES.includes(role)) {
       conditions.push("STATUS = 'Published'");
     } else if (status) {
       conditions.push(`STATUS = '${escapeZcql(status)}'`);
@@ -2180,7 +2182,22 @@ Open the printed local URL. Click through: switch to Brand Manager → Upload an
 
 In the Catalyst Console: Authentication → Authorized Domains → add the `*.onslate.in` (or relevant DC) Slate domain issued in Task 11 Step 12's output. Do not add manual CORS headers for it (duplicate-header footgun).
 
-- [ ] **Step 7: Build and deploy**
+- [ ] **Step 7: Point the production build at the real deployed backend URL**
+
+Slate builds are static — `api.js`'s `BASE_URL` falls back to `http://localhost:3000/server/dam_api/execute`
+at runtime, which only works locally under `catalyst serve`. The deployed Slate site needs the
+build-time env var pointed at the real Development function URL (Catalyst project domain,
+confirmed via MCP: `https://pharmapoc-60047188586.development.catalystserverless.in`):
+
+```bash
+cat > client/.env.production << 'EOF'
+VITE_API_BASE=https://pharmapoc-60047188586.development.catalystserverless.in/server/dam_api/execute
+EOF
+```
+
+Commit this file (it contains no secrets — just a public function URL).
+
+- [ ] **Step 8: Build and deploy**
 
 Vite's default build cleans `dist/`, which deletes the `.catalyst/slate-config.toml`
 that `slate:link` wrote in Task 11 Step 12 — recreate it after every build, before deploying:
@@ -2192,15 +2209,44 @@ printf 'framework = "react-vite"\ndeployment_name = "default"\n\n[[redirects]]\n
 cd .. && catalyst deploy slate pharmapoc-dam -ni
 ```
 
-- [ ] **Step 8: Verify on the deployed URL**
+- [ ] **Step 9: Verify on the deployed URL — manual click-through + Playwright check**
 
-Open the Development Slate URL from the deploy output and repeat the Step 5 click-through against the live deployment.
+Open the Development Slate URL from the deploy output and repeat the Step 5 click-through
+against the live deployment. This is the real CORS/cross-origin sanity check — Step 6's
+Authorized Domains entry and Step 7's real `VITE_API_BASE` are what make this pass; a
+misconfiguration in either surfaces here as failed network requests / blank data, not as a
+build error.
 
-- [ ] **Step 9: Commit**
+In addition, drive the same click-through with Playwright (browser automation, not a
+permanent CI suite for this POC) to catch failures a manual pass might miss — CORS errors
+land in the browser console/network log, which Playwright can assert on directly:
+
+```javascript
+// Run via the Playwright MCP tools available in this session, or as a throwaway script:
+// 1. Navigate to the deployed Slate URL.
+// 2. Collect console messages and network requests for the page lifetime.
+// 3. Assert: no console errors matching /CORS|Access-Control-Allow-Origin/i.
+// 4. Switch role to Brand Manager -> Upload an asset -> assert the POST /assets request
+//    succeeds (status 201, not a failed/blocked cross-origin request).
+// 5. Switch role to Reviewer -> approve the just-uploaded asset -> assert POST
+//    /assets/:id/approve succeeds.
+// 6. Switch role to Agency Viewer -> assert the approved asset now appears in the library
+//    (confirms GET /assets?role=Agency%20Viewer succeeds and returns real data, not a
+//    CORS-blocked empty response).
+// 7. Switch role to Admin -> assert GET /admin/analytics succeeds and usageEvents > 0.
+```
+
+Treat any console error matching CORS/`Access-Control-Allow-Origin`, or any network request
+to `/server/dam_api/execute/...` with a failed/opaque status, as a Critical finding — it means
+the plan's Step 6 (Authorized Domains) or Step 7 (`VITE_API_BASE`) wasn't applied correctly
+against the live deployment, not a code bug in the routes themselves (those are already
+covered by Tasks 7-9's unit tests).
+
+- [ ] **Step 10: Commit**
 
 ```bash
-git add client/src/App.jsx client/src/main.jsx client/src/components/RoleSwitcher.jsx
-git commit -m "feat: wire persona-based app shell and deploy to Slate"
+git add client/src/App.jsx client/src/main.jsx client/src/components/RoleSwitcher.jsx client/.env.production
+git commit -m "feat: wire persona-based app shell, point production build at deployed backend, and deploy to Slate"
 ```
 
 ---
