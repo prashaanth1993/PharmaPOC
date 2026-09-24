@@ -15,6 +15,7 @@
 - Catalyst project: `PharmaPOC`, id `21268000035138541`, org `60047188586`, environment: Development. Never target Production.
 - No authentication anywhere — Security Rules stay at the default `optional`. Role scoping is enforced in application code via a `role` query/body param, not real auth.
 - Stratus bucket name: `pharmapoc-dam-138541` (globally unique, `{app-name}-{project-id-suffix}` pattern), type `public` (so `<img src>` can hit object URLs directly with no signed-URL round trip, matching the "quick demo" scope).
+- **This Catalyst org is in the IN data center.** The Stratus bucket's real, MCP-confirmed URL is `https://pharmapoc-dam-138541-development.zohostratus.in` — domain suffix `.in`, NOT `.com`. Every `FILE_URL`/`THUMBNAIL_URL` built in code must use `zohostratus.in`.
 - Data Store column names are case-sensitive and must match exactly what Task 2 creates.
 - ZCQL results are wrapped under the table name (`row.Assets`) — every ZCQL read goes through the `query()` helper in Task 5, never raw `executeZCQLQuery` calls elsewhere.
 - All Advanced I/O routes use `catalyst.initialize(req, { scope: 'admin' })` (no logged-in app user exists in this POC).
@@ -670,7 +671,7 @@ router.post('/', async (req, res) => {
     const bucket = req.catalystApp.stratus().bucket(process.env.STRATUS_BUCKET);
     const key = `assets/${Date.now()}-${file.name}`;
     await bucket.putObject(key, file.data, { contentType: file.mimetype, overwrite: true });
-    const fileUrl = `https://${process.env.STRATUS_BUCKET}-development.zohostratus.com/${key}`;
+    const fileUrl = `https://${process.env.STRATUS_BUCKET}-development.zohostratus.in/${key}`;
     const asset = await insertRow(req.catalystApp, 'Assets', {
       NAME: fields.name,
       DESCRIPTION: fields.description || '',
@@ -1083,7 +1084,7 @@ router.post('/seed', async (req, res) => {
     for (const sample of SAMPLE_ASSETS) {
       const key = `seed/${sample.name.replace(/\s+/g, '-')}.svg`;
       await bucket.putObject(key, placeholderSvg(sample.name, sample.color), { contentType: 'image/svg+xml', overwrite: true });
-      const fileUrl = `https://${process.env.STRATUS_BUCKET}-development.zohostratus.com/${key}`;
+      const fileUrl = `https://${process.env.STRATUS_BUCKET}-development.zohostratus.in/${key}`;
       const asset = await insertRow(req.catalystApp, 'Assets', {
         NAME: sample.name, ASSET_TYPE: sample.assetType, FUNCTION: sample.func, PROCESS: sample.process,
         BRAND: sample.brand, MARKET: sample.market, LANGUAGE: 'English', USAGE_RIGHTS: 'Internal',
