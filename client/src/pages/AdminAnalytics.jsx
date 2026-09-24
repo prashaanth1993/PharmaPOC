@@ -3,7 +3,7 @@ import { getAnalytics } from '../api';
 
 export default function AdminAnalytics() {
   const [stats, setStats] = useState(null);
-  useEffect(() => { getAnalytics().then(setStats); }, []);
+  useEffect(() => { getAnalytics().then(setStats).catch(console.error); }, []);
   if (!stats) return <p>Loading…</p>;
   return (
     <div className="admin-analytics">

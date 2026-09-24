@@ -3,7 +3,7 @@ import { getTags } from '../api';
 
 export default function AdminTaxonomy() {
   const [tags, setTags] = useState([]);
-  useEffect(() => { getTags().then(setTags); }, []);
+  useEffect(() => { getTags().then(setTags).catch(console.error); }, []);
   return (
     <div className="admin-taxonomy">
       <h3>Controlled Vocabularies</h3>

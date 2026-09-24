@@ -3,7 +3,7 @@ import { getAudit } from '../api';
 
 export default function AdminAudit() {
   const [audit, setAudit] = useState([]);
-  useEffect(() => { getAudit().then(setAudit); }, []);
+  useEffect(() => { getAudit().then(setAudit).catch(console.error); }, []);
   return (
     <table className="admin-audit">
       <thead><tr><th>Asset</th><th>Action</th><th>Actor</th><th>Comments</th><th>When</th></tr></thead>
