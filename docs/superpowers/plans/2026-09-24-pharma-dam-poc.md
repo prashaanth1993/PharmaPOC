@@ -22,6 +22,7 @@
 - Do not set CORS headers for non-localhost origins in function code — add the Slate domain via Console → Authentication → Authorized Domains instead (Task 16), per the CORS "duplicate header" footgun.
 - Taxonomy vocabulary (Function/Process/Asset Type/Status values) must match §4 of the spec exactly — these are the terms borrowed from Sun Pharma's own DMS Taxonomy Blueprint and are a deliberate selling point.
 - The Sun Pharma logo (`assets/branding/sun-pharma-logo.png` in the project root, user-provided) must be present in the app header from Task 16 onward — copied into `client/public/sun-pharma-logo.png` in Task 11 Step 11, rendered in `App.jsx`'s header in Task 16 Step 2.
+- The deployed Slate site must call the real function URL `https://pharmapoc-60047188586.development.catalystserverless.in/server/dam_api/execute` (via `client/.env.production`'s `VITE_API_BASE`, Task 16 Step 7) — never `http://localhost:3000`. The Slate domain must also be added to Console → Authentication → Authorized Domains (Task 16 Step 6) with no manual CORS headers added in function code (duplicate-header footgun).
 
 ## Review Focus
 
