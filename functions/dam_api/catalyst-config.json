@@ -1,0 +1,9 @@
+{
+  "deployment": {
+    "name": "dam_api",
+    "type": "advancedio",
+    "stack": "node20",
+    "env_variables": { "STRATUS_BUCKET": "pharmapoc-dam-138541" }
+  },
+  "execution": { "main": "index.js" }
+}

@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "targets": [
+      "dam_api"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
+}

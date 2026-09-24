@@ -1,0 +1,15 @@
+{
+  "name": "dam_api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": { "test": "jest" },
+  "dependencies": {
+    "express": "^4.19.2",
+    "busboy": "^1.6.0",
+    "zcatalyst-sdk-node": "^2.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
