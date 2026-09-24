@@ -4,6 +4,11 @@ const { query, insertRow, updateRow, escapeZcql } = require('../db');
 
 const router = express.Router();
 
+function toCatalystDatetime(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
 async function getAsset(catalystApp, id) {
   const rows = await query(catalystApp, `SELECT * FROM Assets WHERE ROWID = '${escapeZcql(id)}'`, 'Assets');
   return rows[0] || null;
@@ -29,7 +34,7 @@ router.post('/:id/approve', async (req, res) => {
   try {
     const asset = await getAsset(req.catalystApp, req.params.id);
     if (!asset || asset.STATUS !== 'UnderReview') return res.status(400).json({ error: 'Only an UnderReview asset can be approved' });
-    await updateRow(req.catalystApp, 'Assets', { ROWID: req.params.id, STATUS: 'Published', EFFECTIVE_DATE: new Date().toISOString() });
+    await updateRow(req.catalystApp, 'Assets', { ROWID: req.params.id, STATUS: 'Published', EFFECTIVE_DATE: toCatalystDatetime(new Date()) });
     await logAction(req.catalystApp, req.params.id, 'Approved', req.body.actorPersona, req.body.actorRole, req.body.comments || '');
     res.status(200).json({ status: 'Published' });
   } catch (err) { res.status(500).json({ error: err.message }); }

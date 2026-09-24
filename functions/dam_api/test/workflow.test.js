@@ -53,7 +53,7 @@ describe('POST /assets/:id/approve', () => {
     const res = await request(buildApp()).post('/assets/1/approve').send({ actorPersona: 'Dr. Rao', actorRole: 'Reviewer' });
     expect(res.status).toBe(200);
     expect(updateRow.mock.calls[0][2]).toMatchObject({ ROWID: '1', STATUS: 'Published' });
-    expect(updateRow.mock.calls[0][2].EFFECTIVE_DATE).toBeDefined();
+    expect(updateRow.mock.calls[0][2].EFFECTIVE_DATE).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   });
 });
 
