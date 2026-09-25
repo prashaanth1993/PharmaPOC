@@ -3,6 +3,8 @@ dist/
 build/
 .env
 .env.production
+!client/.env.production
 .DS_Store
 .superpowers/
+.playwright-mcp/
 Sun_Pharma_DMS_Taxonomy_Consulting_Deck.pdf

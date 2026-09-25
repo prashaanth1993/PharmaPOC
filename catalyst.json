@@ -5,5 +5,11 @@
     ],
     "ignore": [],
     "source": "functions"
-  }
+  },
+  "slate": [
+    {
+      "name": "pharmapoc-dam",
+      "source": "/Users/prasha-3336/Catalyst-Proj/PharmaPOC/client"
+    }
+  ]
 }
