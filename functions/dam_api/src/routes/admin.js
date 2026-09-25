@@ -44,13 +44,26 @@ function placeholderSvg(label, color) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><rect width="100%" height="100%" fill="${color}"/><text x="50%" y="50%" font-size="28" fill="#fff" text-anchor="middle" dominant-baseline="middle">${label}</text></svg>`;
 }
 
+// Brand -> real Sun Pharma therapeutic franchise. Product names stay
+// deliberately fictional (this is a vendor POC, not real marketed-product
+// collateral), but every brand is grounded in one of Sun Pharma's actual
+// major therapeutic areas so the taxonomy reads as built for Sun Pharma
+// specifically, not a generic pharma template.
+const THERAPEUTIC_AREA_BY_BRAND = {
+  Cardiozan: 'Cardiovascular',
+  'Onco-Relief': 'Oncology',
+  DiabetCare: 'Diabetes Care',
+  NeuroCalm: 'CNS / Neurology',
+  RespiCare: 'Respiratory',
+};
+
 const SAMPLE_ASSETS = [
-  { name: 'Cardiozan Launch Detail Aid', assetType: 'Detail Aid', func: 'Sales/Field Enablement', process: 'Field Enablement', brand: 'Cardiozan', market: 'Nigeria', status: 'Published', color: '#7c3aed' },
-  { name: 'Cardiozan Campaign Social Post', assetType: 'Social Post', func: 'Marketing', process: 'Campaign', brand: 'Cardiozan', market: 'Philippines', status: 'Published', color: '#2563eb' },
+  { name: 'Cardiozan Launch Detail Aid', assetType: 'Detail Aid', func: 'Sales/Field Enablement', process: 'Field Enablement', brand: 'Cardiozan', market: 'Nigeria', status: 'Published', expiryDate: '2027-08-01 00:00:00', color: '#7c3aed' },
+  { name: 'Cardiozan Campaign Social Post', assetType: 'Social Post', func: 'Marketing', process: 'Campaign', brand: 'Cardiozan', market: 'Philippines', status: 'Published', expiryDate: '2027-10-15 00:00:00', color: '#2563eb' },
   { name: 'Onco-Relief Medical Brochure', assetType: 'Brochure', func: 'Medical Affairs', process: 'Medical Education', brand: 'Onco-Relief', market: 'Kenya', status: 'UnderReview', color: '#ea580c' },
-  { name: 'Field Team Onboarding Deck', assetType: 'Presentation', func: 'Training & Learning', process: 'Onboarding', brand: 'Corporate', market: 'Vietnam', status: 'Draft', color: '#0d9488' },
-  { name: 'Sun Pharma Corporate Overview Video', assetType: 'Video', func: 'Corporate Communications', process: 'Campaign', brand: 'Corporate', market: 'Global', status: 'Published', color: '#dc2626' },
-  { name: 'DiabetCare Packaging Artwork', assetType: 'Image', func: 'Marketing', process: 'Product Launch', brand: 'DiabetCare', market: 'Indonesia', status: 'Draft', color: '#16a34a' },
+  { name: 'Field Team Onboarding Deck', assetType: 'Presentation', func: 'Training & Learning', process: 'Onboarding', brand: 'Corporate', market: 'Vietnam', status: 'Draft', expiryDate: '2027-06-30 00:00:00', color: '#0d9488' },
+  { name: 'Sun Pharma Corporate Overview Video', assetType: 'Video', func: 'Corporate Communications', process: 'Campaign', brand: 'Corporate', market: 'Global', status: 'Published', expiryDate: '2027-12-01 00:00:00', color: '#dc2626' },
+  { name: 'DiabetCare Packaging Artwork', assetType: 'Image', func: 'Marketing', process: 'Product Launch', brand: 'DiabetCare', market: 'Indonesia', status: 'Draft', expiryDate: '2027-11-30 00:00:00', color: '#16a34a' },
   // Second wave — deliberately skews toward Draft/UnderReview (the first six had
   // all drifted to Published over the course of demo/testing), spans two new
   // brands and five markets not covered above, so every persona has real,
@@ -59,7 +72,7 @@ const SAMPLE_ASSETS = [
   { name: 'DiabetCare Patient Education Brochure', assetType: 'Brochure', func: 'Medical Affairs', process: 'Medical Education', brand: 'DiabetCare', market: 'Vietnam', status: 'UnderReview', color: '#65a30d' },
   { name: 'Onco-Relief Congress Booth Banner', assetType: 'Image', func: 'Marketing', process: 'Congress-Event', brand: 'Onco-Relief', market: 'Bangladesh', status: 'Draft', color: '#c2410c' },
   { name: 'NeuroCalm Launch Video', assetType: 'Video', func: 'Marketing', process: 'Product Launch', brand: 'NeuroCalm', market: 'Sri Lanka', status: 'UnderReview', color: '#7e22ce' },
-  { name: 'RespiCare Detail Aid', assetType: 'Detail Aid', func: 'Sales/Field Enablement', process: 'Field Enablement', brand: 'RespiCare', market: 'Ghana', status: 'Published', color: '#0d9488' },
+  { name: 'RespiCare Detail Aid', assetType: 'Detail Aid', func: 'Sales/Field Enablement', process: 'Field Enablement', brand: 'RespiCare', market: 'Ghana', status: 'Published', expiryDate: '2027-12-31 00:00:00', color: '#0d9488' },
   { name: 'Q1 Field Force Social Campaign', assetType: 'Social Post', func: 'Marketing', process: 'Campaign', brand: 'Cardiozan', market: 'Nigeria', status: 'Draft', color: '#1d4ed8' },
   { name: 'RespiCare Patient Companion Guide', assetType: 'Brochure', func: 'Medical Affairs', process: 'Medical Education', brand: 'RespiCare', market: 'Philippines', status: 'UnderReview', color: '#15803d' },
   { name: 'Corporate ESG Impact Report', assetType: 'Presentation', func: 'Corporate Communications', process: 'Campaign', brand: 'Corporate', market: 'Global', status: 'Draft', color: '#b91c1c' },
@@ -77,6 +90,12 @@ const TAG_SEEDS = [
   { TAG_NAME: 'Field', TAG_CATEGORY: 'Content Type' },
   { TAG_NAME: 'Digital', TAG_CATEGORY: 'Content Type' },
   { TAG_NAME: 'Cardiovascular', TAG_CATEGORY: 'Therapeutic Area' },
+  { TAG_NAME: 'Oncology', TAG_CATEGORY: 'Therapeutic Area' },
+  { TAG_NAME: 'Diabetes Care', TAG_CATEGORY: 'Therapeutic Area' },
+  { TAG_NAME: 'CNS / Neurology', TAG_CATEGORY: 'Therapeutic Area' },
+  { TAG_NAME: 'Respiratory', TAG_CATEGORY: 'Therapeutic Area' },
+  { TAG_NAME: 'MLR Approved', TAG_CATEGORY: 'Compliance' },
+  { TAG_NAME: 'Congress', TAG_CATEGORY: 'Campaign' },
 ];
 
 router.post('/seed', async (req, res) => {
@@ -113,7 +132,8 @@ router.post('/seed', async (req, res) => {
         NAME: sample.name, ASSET_TYPE: sample.assetType, FUNCTION: sample.func, PROCESS: sample.process,
         BRAND: sample.brand, MARKET: sample.market, LANGUAGE: 'English', USAGE_RIGHTS: 'Internal',
         STATUS: sample.status, CURRENT_VERSION: '1', FILE_URL: fileUrl, THUMBNAIL_URL: fileUrl,
-        UPLOADED_BY: 'Priya Sharma',
+        UPLOADED_BY: 'Priya Sharma', THERAPEUTIC_AREA: THERAPEUTIC_AREA_BY_BRAND[sample.brand] || null,
+        EXPIRY_DATE: sample.expiryDate || null,
       });
       inserted.push(asset);
     }

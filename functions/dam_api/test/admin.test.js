@@ -88,7 +88,7 @@ describe('POST /admin/seed', () => {
     const firstRes = await request(app).post('/admin/seed');
     expect(firstRes.status).toBe(200);
     expect(firstRes.body.personasSeeded).toBe(4);
-    expect(firstRes.body.tagsSeeded).toBe(4);
+    expect(firstRes.body.tagsSeeded).toBe(10);
     expect(firstRes.body.assetsSeeded).toBe(14);
     expect(firstRes.body.usageLogsSeeded).toBeGreaterThan(0);
     expect(insertRows).toHaveBeenCalledTimes(2); // Personas + Tags
@@ -104,6 +104,8 @@ describe('POST /admin/seed', () => {
       ]) // existing Personas
       .mockResolvedValueOnce([
         { TAG_NAME: 'Launch' }, { TAG_NAME: 'Field' }, { TAG_NAME: 'Digital' }, { TAG_NAME: 'Cardiovascular' },
+        { TAG_NAME: 'Oncology' }, { TAG_NAME: 'Diabetes Care' }, { TAG_NAME: 'CNS / Neurology' },
+        { TAG_NAME: 'Respiratory' }, { TAG_NAME: 'MLR Approved' }, { TAG_NAME: 'Congress' },
       ]) // existing Tags
       .mockResolvedValueOnce([
         { NAME: 'Cardiozan Launch Detail Aid' },
