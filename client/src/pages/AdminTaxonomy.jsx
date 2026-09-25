@@ -3,13 +3,28 @@ import { getTags } from '../api';
 
 export default function AdminTaxonomy() {
   const [tags, setTags] = useState([]);
-  useEffect(() => { getTags().then(setTags).catch(console.error); }, []);
+  useEffect(() => {
+    getTags().then(setTags).catch(console.error);
+  }, []);
+
   return (
     <div className="admin-taxonomy">
-      <h3>Controlled Vocabularies</h3>
-      <p>Metadata Stewards maintain this list; Domain Owners (Brand Manager, Reviewer) consume it during Classify/Enrich.</p>
+      <div className="page-header">
+        <div>
+          <h2>Controlled vocabularies</h2>
+        </div>
+      </div>
+      <p>
+        Metadata Stewards maintain this list; Domain Owners (Brand Manager, Reviewer) consume it
+        during the Classify and Enrich stages of every upload.
+      </p>
       <ul>
-        {tags.map((t) => <li key={t.ROWID}>{t.TAG_NAME} <em>({t.TAG_CATEGORY})</em></li>)}
+        {tags.map((t) => (
+          <li key={t.ROWID}>
+            {t.TAG_NAME}
+            <span className="tag-category-badge">{t.TAG_CATEGORY}</span>
+          </li>
+        ))}
       </ul>
     </div>
   );

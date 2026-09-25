@@ -9,7 +9,14 @@ export default function UploadAsset({ onUploaded }) {
   const { role } = useRole();
   const [stage, setStage] = useState('Ingest');
   const [file, setFile] = useState(null);
-  const [fields, setFields] = useState({ name: '', assetType: 'Image', function: '', process: '', brand: '', market: '' });
+  const [fields, setFields] = useState({
+    name: '',
+    assetType: 'Image',
+    function: '',
+    process: '',
+    brand: '',
+    market: '',
+  });
 
   async function handleFileChange(e) {
     const chosen = e.target.files[0];
@@ -34,18 +41,99 @@ export default function UploadAsset({ onUploaded }) {
   }
 
   return (
-    <form className="upload-asset" onSubmit={handleSubmit}>
-      <UploadStepper stage={stage} />
-      <input type="file" onChange={handleFileChange} />
-      <input placeholder="Asset name" value={fields.name} onChange={(e) => setFields({ ...fields, name: e.target.value })} />
-      <select value={fields.assetType} onChange={(e) => setFields({ ...fields, assetType: e.target.value })}>
-        {ASSET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-      </select>
-      <input placeholder="Function (AI-suggested)" value={fields.function} onChange={(e) => setFields({ ...fields, function: e.target.value })} />
-      <input placeholder="Process (AI-suggested)" value={fields.process} onChange={(e) => setFields({ ...fields, process: e.target.value })} />
-      <input placeholder="Brand" value={fields.brand} onChange={(e) => setFields({ ...fields, brand: e.target.value })} />
-      <input placeholder="Market" value={fields.market} onChange={(e) => setFields({ ...fields, market: e.target.value })} />
-      <button type="submit" disabled={!file}>Ingest &amp; Submit for Review</button>
-    </form>
+    <div>
+      <div className="page-header">
+        <div>
+          <h2>Upload asset</h2>
+          <p>Every upload runs through the six-stage Ingest → Publish pipeline.</p>
+        </div>
+      </div>
+      <form className="upload-asset" onSubmit={handleSubmit}>
+        <UploadStepper stage={stage} />
+
+        <div className="field field-full">
+          <label className="field-label" htmlFor="upload-file">
+            Asset file
+          </label>
+          <input id="upload-file" type="file" onChange={handleFileChange} />
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="upload-name">
+            Asset name
+          </label>
+          <input
+            id="upload-name"
+            value={fields.name}
+            onChange={(e) => setFields({ ...fields, name: e.target.value })}
+          />
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="upload-type">
+            Asset type
+          </label>
+          <select
+            id="upload-type"
+            value={fields.assetType}
+            onChange={(e) => setFields({ ...fields, assetType: e.target.value })}
+          >
+            {ASSET_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="upload-function">
+            Function (AI-suggested)
+          </label>
+          <input
+            id="upload-function"
+            value={fields.function}
+            onChange={(e) => setFields({ ...fields, function: e.target.value })}
+          />
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="upload-process">
+            Process (AI-suggested)
+          </label>
+          <input
+            id="upload-process"
+            value={fields.process}
+            onChange={(e) => setFields({ ...fields, process: e.target.value })}
+          />
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="upload-brand">
+            Brand
+          </label>
+          <input
+            id="upload-brand"
+            value={fields.brand}
+            onChange={(e) => setFields({ ...fields, brand: e.target.value })}
+          />
+        </div>
+
+        <div className="field">
+          <label className="field-label" htmlFor="upload-market">
+            Market
+          </label>
+          <input
+            id="upload-market"
+            value={fields.market}
+            onChange={(e) => setFields({ ...fields, market: e.target.value })}
+          />
+        </div>
+
+        <button className="btn btn-accent" type="submit" disabled={!file}>
+          Ingest &amp; submit for review
+        </button>
+      </form>
+    </div>
   );
 }

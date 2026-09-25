@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 export default function AnnotationCanvas({ asset, onAnnotate, authorPersona }) {
   const [pendingPin, setPendingPin] = useState(null);
+  const [imageFailed, setImageFailed] = useState(false);
 
   function handleClick(e) {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -17,7 +18,13 @@ export default function AnnotationCanvas({ asset, onAnnotate, authorPersona }) {
 
   return (
     <div className="annotation-canvas" onClick={handleClick}>
-      <img src={asset.FILE_URL} alt={asset.NAME} />
+      {imageFailed ? (
+        <div className="annotation-canvas-fallback" aria-hidden="true">
+          {asset.NAME}
+        </div>
+      ) : (
+        <img src={asset.FILE_URL} alt={asset.NAME} onError={() => setImageFailed(true)} />
+      )}
       {pendingPin && (
         <form onSubmit={(e) => { e.preventDefault(); handleSave(e.target.comment.value); }}>
           <input name="comment" placeholder="Annotation comment" autoFocus />

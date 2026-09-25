@@ -1,184 +1,643 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
+/* ---------------------------------------------------------------------
+   App shell
+--------------------------------------------------------------------- */
+.app-shell {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  min-height: 100svh;
 }
 
-#next-steps {
+.app-header {
   display: flex;
-  border-top: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 32px;
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.brand-logo {
+  height: 32px;
+  width: auto;
+  border-radius: 4px;
+  background: #fff;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.brand-lockup h1 {
+  color: #fff;
+  font-size: 18px;
+}
+
+.app-tagline {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12.5px;
+  margin-top: 1px;
+  max-width: 46ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.app-header select:focus {
+  border-color: var(--amber-500);
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 32px 64px;
+}
+
+@media (max-width: 720px) {
+  .app-header {
+    flex-wrap: wrap;
+    padding: 14px 18px;
+  }
+  .app-main {
+    padding: 20px 16px 48px;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Tab bar (Brand Manager / Admin sub-navigation)
+--------------------------------------------------------------------- */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 4px;
+  margin-right: 20px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.tab-btn:hover {
+  color: var(--ink);
+}
+
+.tab-btn.active {
+  color: var(--navy-900);
+  border-bottom-color: var(--amber-600);
+  font-weight: 600;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 18px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.back-btn:hover {
+  color: var(--navy-900);
+}
+
+/* ---------------------------------------------------------------------
+   Brand Manager — content studio: photographic grid, hero search
+--------------------------------------------------------------------- */
+.smart-search-bar {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: 22px;
+}
+
+.smart-search-bar input {
+  flex: 1;
+  min-width: 0;
+}
+
+.smart-search-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.asset-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0;
   text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+.asset-card:hover {
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-2px);
 }
 
-#next-steps ul {
+.asset-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  background: var(--paper);
+  display: block;
+}
+
+.asset-card-fallback {
+  width: 100%;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--navy-900), var(--navy-500));
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-serif);
+  font-size: 13px;
+}
+
+.asset-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px 14px;
+}
+
+.asset-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  display: block;
+  line-height: 1.3;
+}
+
+.asset-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meta-pill {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--navy-700);
+  background: #eef1f7;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.asset-card .status {
+  align-self: flex-start;
+}
+
+/* ---------------------------------------------------------------------
+   Upload flow — full-width focused stepper
+--------------------------------------------------------------------- */
+.upload-stepper {
+  display: flex;
   list-style: none;
   padding: 0;
+  margin: 0 0 28px;
+  counter-reset: stage;
+}
+
+.upload-stepper li {
+  flex: 1;
+  position: relative;
+  padding-top: 30px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  counter-increment: stage;
+}
+
+.upload-stepper li::before {
+  content: counter(stage);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  background: var(--surface);
+  border: 2px solid var(--line-strong);
+  color: var(--ink-soft);
+}
+
+.upload-stepper li::after {
+  content: '';
+  position: absolute;
+  top: 11px;
+  left: 26px;
+  right: -4px;
+  height: 2px;
+  background: var(--line-strong);
+}
+
+.upload-stepper li:last-child::after {
+  display: none;
+}
+
+.upload-stepper li.done {
+  color: var(--sage-700);
+}
+
+.upload-stepper li.done::before {
+  background: var(--sage-700);
+  border-color: var(--sage-700);
+  color: #fff;
+}
+
+.upload-stepper li.done::after {
+  background: var(--sage-700);
+}
+
+.upload-stepper li.active {
+  color: var(--navy-900);
+}
+
+.upload-stepper li.active::before {
+  background: var(--amber-600);
+  border-color: var(--amber-600);
+  color: #fff;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.upload-asset {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 640px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+
+.upload-asset .upload-stepper,
+.upload-asset .field-full {
+  grid-column: 1 / -1;
+}
+
+.upload-asset input[type='file'] {
+  padding: 10px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+.upload-asset button[type='submit'] {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+@media (max-width: 640px) {
+  .upload-stepper {
+    display: none;
+  }
+  .upload-asset {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Metadata facet panel — shared by Brand Manager & Reviewer detail views
+--------------------------------------------------------------------- */
+.metadata-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+}
+
+.metadata-panel section {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.metadata-panel h4 {
+  text-transform: none;
+  margin-bottom: 8px;
+}
+
+.metadata-panel dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metadata-panel dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+}
+
+.metadata-panel dt {
+  color: var(--ink-soft);
+}
+
+.metadata-panel dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------------
+   Annotation canvas
+--------------------------------------------------------------------- */
+.annotation-canvas {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: crosshair;
+  border: 1px solid var(--line);
+}
+
+.annotation-canvas img {
+  width: 100%;
+  display: block;
+}
+
+.annotation-canvas-fallback {
+  width: 100%;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--navy-900), var(--navy-500));
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-serif);
+  font-size: 14px;
+}
+
+.annotation-canvas form {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
   display: flex;
   gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
+  background: rgba(20, 33, 61, 0.92);
+  padding: 8px;
+  border-radius: var(--radius-sm);
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+.annotation-canvas form input {
+  flex: 1;
 }
 
-.ticks {
-  position: relative;
+/* ---------------------------------------------------------------------
+   Asset detail — Brand Manager's own asset
+--------------------------------------------------------------------- */
+.asset-detail {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.asset-detail .hero {
   width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-card);
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.asset-detail .annotation-canvas {
+  grid-column: 1 / -1;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
+.asset-detail > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+@media (max-width: 860px) {
+  .asset-detail {
+    grid-template-columns: 1fr;
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+}
+
+/* ---------------------------------------------------------------------
+   Reviewer — calm, sequential, document-review queue
+--------------------------------------------------------------------- */
+.reviewer-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-item {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.review-item img {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  display: block;
+}
+
+.review-item .annotation-canvas {
+  margin-top: 12px;
+}
+
+.review-item .page-header {
+  margin-bottom: 14px;
+}
+
+.review-item .page-header h3 {
+  font-size: 17px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+@media (max-width: 760px) {
+  .review-item {
+    grid-template-columns: 1fr;
   }
+}
+
+/* ---------------------------------------------------------------------
+   Admin — dense governance dashboard
+--------------------------------------------------------------------- */
+.admin-analytics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border-top: 3px solid var(--amber-600);
+}
+
+.stat-tile strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  color: var(--navy-900);
+  line-height: 1.1;
+}
+
+.stat-tile span {
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.admin-taxonomy {
+  max-width: 640px;
+}
+
+.admin-taxonomy > p {
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  margin: 8px 0 18px;
+  max-width: 60ch;
+}
+
+.admin-taxonomy ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-taxonomy li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-weight: 500;
+}
+
+.tag-category-badge {
+  font-size: 11.5px;
+  font-style: normal;
+  color: var(--ink-soft);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.admin-audit {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 13px;
+}
+
+.admin-audit th {
+  text-align: left;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 11.5px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-audit td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.admin-audit tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------------------------------------------------------------------
+   Agency Viewer — stripped-down external gallery
+--------------------------------------------------------------------- */
+.agency-library .access-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--sage-100);
+  color: var(--sage-700);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.agency-library .asset-card {
+  cursor: default;
+}
+
+.agency-library .asset-card:hover {
+  box-shadow: var(--shadow-card);
+  transform: none;
 }
