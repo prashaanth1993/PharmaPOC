@@ -51,6 +51,18 @@ const SAMPLE_ASSETS = [
   { name: 'Field Team Onboarding Deck', assetType: 'Presentation', func: 'Training & Learning', process: 'Onboarding', brand: 'Corporate', market: 'Vietnam', status: 'Draft', color: '#0d9488' },
   { name: 'Sun Pharma Corporate Overview Video', assetType: 'Video', func: 'Corporate Communications', process: 'Campaign', brand: 'Corporate', market: 'Global', status: 'Published', color: '#dc2626' },
   { name: 'DiabetCare Packaging Artwork', assetType: 'Image', func: 'Marketing', process: 'Product Launch', brand: 'DiabetCare', market: 'Indonesia', status: 'Draft', color: '#16a34a' },
+  // Second wave — deliberately skews toward Draft/UnderReview (the first six had
+  // all drifted to Published over the course of demo/testing), spans two new
+  // brands and five markets not covered above, so every persona has real,
+  // varied content to work with rather than a handful of look-alike rows.
+  { name: 'Cardiozan Field Rep Training Module', assetType: 'Presentation', func: 'Training & Learning', process: 'Onboarding', brand: 'Cardiozan', market: 'Kenya', status: 'Draft', color: '#0891b2' },
+  { name: 'DiabetCare Patient Education Brochure', assetType: 'Brochure', func: 'Medical Affairs', process: 'Medical Education', brand: 'DiabetCare', market: 'Vietnam', status: 'UnderReview', color: '#65a30d' },
+  { name: 'Onco-Relief Congress Booth Banner', assetType: 'Image', func: 'Marketing', process: 'Congress-Event', brand: 'Onco-Relief', market: 'Bangladesh', status: 'Draft', color: '#c2410c' },
+  { name: 'NeuroCalm Launch Video', assetType: 'Video', func: 'Marketing', process: 'Product Launch', brand: 'NeuroCalm', market: 'Sri Lanka', status: 'UnderReview', color: '#7e22ce' },
+  { name: 'RespiCare Detail Aid', assetType: 'Detail Aid', func: 'Sales/Field Enablement', process: 'Field Enablement', brand: 'RespiCare', market: 'Ghana', status: 'Published', color: '#0d9488' },
+  { name: 'Q1 Field Force Social Campaign', assetType: 'Social Post', func: 'Marketing', process: 'Campaign', brand: 'Cardiozan', market: 'Nigeria', status: 'Draft', color: '#1d4ed8' },
+  { name: 'RespiCare Patient Companion Guide', assetType: 'Brochure', func: 'Medical Affairs', process: 'Medical Education', brand: 'RespiCare', market: 'Philippines', status: 'UnderReview', color: '#15803d' },
+  { name: 'Corporate ESG Impact Report', assetType: 'Presentation', func: 'Corporate Communications', process: 'Campaign', brand: 'Corporate', market: 'Global', status: 'Draft', color: '#b91c1c' },
 ];
 
 const PERSONA_SEEDS = [
@@ -110,16 +122,18 @@ router.post('/seed', async (req, res) => {
     // right after seeding, referencing a few of the just-inserted sample assets.
     // Only do this when this call actually created new assets, so re-running
     // /admin/seed after everything already exists doesn't pile up duplicate usage events.
-    const usageLogSeeds = [];
-    if (inserted.length > 0) {
-      const target0 = inserted[0];
-      const target1 = inserted[1] || inserted[0];
-      const target2 = inserted[2] || inserted[0];
-      usageLogSeeds.push({ ASSET_ID: target0.ROWID, ACTION: 'View', PERSONA: 'Field Agency Partner', CHANNEL: 'DAM Demo' });
-      usageLogSeeds.push({ ASSET_ID: target0.ROWID, ACTION: 'Download', PERSONA: 'Priya Sharma', CHANNEL: 'DAM Demo' });
-      usageLogSeeds.push({ ASSET_ID: target1.ROWID, ACTION: 'View', PERSONA: 'Dr. Anil Rao', CHANNEL: 'DAM Demo' });
-      usageLogSeeds.push({ ASSET_ID: target2.ROWID, ACTION: 'Download', PERSONA: 'Field Agency Partner', CHANNEL: 'DAM Demo' });
-    }
+    const USAGE_ROTATION = [
+      { ACTION: 'View', PERSONA: 'Field Agency Partner' },
+      { ACTION: 'Download', PERSONA: 'Priya Sharma' },
+      { ACTION: 'View', PERSONA: 'Dr. Anil Rao' },
+      { ACTION: 'Download', PERSONA: 'Field Agency Partner' },
+      { ACTION: 'View', PERSONA: 'Sun Pharma Admin' },
+    ];
+    const usageLogSeeds = inserted.map((asset, i) => ({
+      ASSET_ID: asset.ROWID,
+      ...USAGE_ROTATION[i % USAGE_ROTATION.length],
+      CHANNEL: 'DAM Demo',
+    }));
     for (const usageLog of usageLogSeeds) {
       await insertRow(req.catalystApp, 'UsageLog', usageLog);
     }

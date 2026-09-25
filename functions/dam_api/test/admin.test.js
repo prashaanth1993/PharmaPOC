@@ -89,10 +89,10 @@ describe('POST /admin/seed', () => {
     expect(firstRes.status).toBe(200);
     expect(firstRes.body.personasSeeded).toBe(4);
     expect(firstRes.body.tagsSeeded).toBe(4);
-    expect(firstRes.body.assetsSeeded).toBe(6);
+    expect(firstRes.body.assetsSeeded).toBe(14);
     expect(firstRes.body.usageLogsSeeded).toBeGreaterThan(0);
     expect(insertRows).toHaveBeenCalledTimes(2); // Personas + Tags
-    expect(insertRow.mock.calls.filter(([, table]) => table === 'Assets')).toHaveLength(6);
+    expect(insertRow.mock.calls.filter(([, table]) => table === 'Assets')).toHaveLength(14);
 
     jest.clearAllMocks();
 
@@ -112,6 +112,14 @@ describe('POST /admin/seed', () => {
         { NAME: 'Field Team Onboarding Deck' },
         { NAME: 'Sun Pharma Corporate Overview Video' },
         { NAME: 'DiabetCare Packaging Artwork' },
+        { NAME: 'Cardiozan Field Rep Training Module' },
+        { NAME: 'DiabetCare Patient Education Brochure' },
+        { NAME: 'Onco-Relief Congress Booth Banner' },
+        { NAME: 'NeuroCalm Launch Video' },
+        { NAME: 'RespiCare Detail Aid' },
+        { NAME: 'Q1 Field Force Social Campaign' },
+        { NAME: 'RespiCare Patient Companion Guide' },
+        { NAME: 'Corporate ESG Impact Report' },
       ]); // existing Assets
 
     const secondRes = await request(app).post('/admin/seed');
